@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates an Amazon SageMaker Model, Endpoint Configuration and Endpoint.
+
+Parameters:
+  BucketName:
+    Type: String
+    Default: sagemaker-bert-endpoint-artefacts
+    
+Resources:
+    Model:
+        Type: AWS::SageMaker::Model
+        Properties:
+            ExecutionRoleArn: !Sub 'arn:aws:iam::${AWS::AccountId}:role/SageMaker-BERT-Endpoint-Role'
+            ModelName: 'bert-squad-model'
+            PrimaryContainer:
+                Image: '763104351884.dkr.ecr.eu-west-1.amazonaws.com/pytorch-inference:1.4.0-cpu-py36-ubuntu16.04'
+                ModelDataUrl: !Sub 's3://${BucketName}/bert-squad-model/model.tar.gz'
+                Environment:
+                    SAGEMAKER_PROGRAM: 'predictor.py'
+
+    Endpoint:
+        Type: AWS::SageMaker::Endpoint
+        Properties: 
+            EndpointConfigName: !GetAtt EndpointConfig.EndpointConfigName
+            EndpointName: 'bert-squad-model-endpoint'
+
+    EndpointConfig:
+        Type: AWS::SageMaker::EndpointConfig
+        Properties:
+            ProductionVariants: 
+                -
+                    ModelName: !GetAtt Model.ModelName
+                    VariantName: !GetAtt Model.ModelName
+                    InitialInstanceCount: 1
+                    InstanceType: 'ml.t2.2xlarge'
+                    InitialVariantWeight: 1.0
+
+Outputs:
+    EndpointId:
+        Value: !Ref Endpoint
+    EndpointName:
+        Value: !GetAtt Endpoint.EndpointName
