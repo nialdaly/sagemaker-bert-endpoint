@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates an IAM Execution Role for the SageMaker service.
+
+Resources:
+  IAMRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - sagemaker.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns: 
+        - 'arn:aws:iam::aws:policy/AmazonSageMakerFullAccess'
+      RoleName: 'SageMaker-BERT-Endpoint-Role'
+      Tags: 
+        - Key: 'SageMaker-Execution-Role'
+          Value: 'SageMaker-BERT-Endpoint-Execution-Role'
