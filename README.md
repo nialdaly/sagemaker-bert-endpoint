@@ -14,7 +14,7 @@ git clone https://github.com/nialdaly/sagemaker-bert-endpoint.git
 ```
 
 ## Resource Cleanup
-Any resources created in this project can be simply removed by destroying the CloudFormation stacks that you created using the CloudFormation console. The SageMaker Notebook instance must be terminated yourself. **Remember to stop the instance if you aren't using it as you will be charged.**
+Any resources created in this project can be simply removed by destroying the CloudFormation stacks that you created using the CloudFormation console. The SageMaker Notebook instance must be terminated yourself. **Remember to stop the instance if you aren't using it as you will be charged otherwise.**
 
 ## Additional Resources
 * [SageMaker Pre-built Containers](https://docs.aws.amazon.com/sagemaker/latest/dg/pre-built-containers-frameworks-deep-learning.html)
