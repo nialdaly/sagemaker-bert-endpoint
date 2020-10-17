@@ -34,7 +34,9 @@ def predict_fn(input_data, model):
     
     input_ids = tokenizer.encode(question, context)
     token_type_ids = [0 if i <= input_ids.index(102) else 1 for i in range(len(input_ids))]
-    start_scores, end_scores = model(torch.tensor([input_ids]), token_type_ids = torch.tensor([token_type_ids]))
+    start_scores, end_scores = model(
+        torch.tensor([input_ids]), 
+        token_type_ids = torch.tensor([token_type_ids]))
     all_tokens = tokenizer.convert_ids_to_tokens(input_ids)
     answer = ' '.join(all_tokens[torch.argmax(start_scores) : torch.argmax(end_scores)+1])
     return answer
