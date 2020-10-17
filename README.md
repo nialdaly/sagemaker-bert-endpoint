@@ -2,19 +2,19 @@
 The following project will demonstrate the process of deploying a BERT model fine-tuned on the SQuAD dataset provided by HuggingFace. The model will be deployed to an Amazon SageMaker PyTorch endpoint. This process makes use of Amazon SageMaker, CloudFormation, Elastic Container Service (ECS) and the HuggingFace transformers library.
 
 ## Prerequisites
-* AWS Account with an IAM (SageMaker Execution) Role which can be created using `sagemaker-execution-role.yaml` CloudFormation template.
+* An AWS Account with an IAM (SageMaker Execution) Role which can be created using `sagemaker-execution-role.yaml` CloudFormation template.
+* An appropriate SageMaker Instance limit. A request for a service limit increase can raised by following [this process](https://docs.aws.amazon.com/deepcomposer/latest/devguide/deepcomposer-service-limit.html).
 
 ## Getting Started
-The easiest way to get started is to spin up an Amazon SageMaker notebook instance using the SageMaker Execution Role that you previously created. You can select a smaller instance such as the `ml.medium` for this step.
+The easiest way to get started is to spin up an Amazon SageMaker notebook instance using the SageMaker Execution Role that you previously created. You can select a smaller instance such as the `ml.t2.medium` for this step.
 
-Th  repository can be cloned via the following command.
+The repository can be cloned via the following command.
 ```
 git clone https://github.com/nialdaly/sagemaker-bert-endpoint.git
 ```
 
-## Updates
-add sagemaker execution role creation to pre-req
-talk about sgaemaker pytorch container
+## Resource Cleanup
+Any resources created in this project can be simply removed by destroying the CloudFormation stacks that you created using the CloudFormation console.
 
 ## Additional Resources
 * [SageMaker Pre-built Containers](https://docs.aws.amazon.com/sagemaker/latest/dg/pre-built-containers-frameworks-deep-learning.html)
