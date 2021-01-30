@@ -2,7 +2,7 @@
 The following project will demonstrate the process of deploying a BERT model fine-tuned on the SQuAD dataset provided by HuggingFace. The model will be deployed to an Amazon SageMaker PyTorch endpoint. This process makes use of Amazon SageMaker, CloudFormation, Elastic Container Service (ECS) and the HuggingFace transformers library.
 
 ## Prerequisites
-* An AWS Account with an IAM Execution Role for the SageMaker Notebook Instance which can be created using `sagemaker-notebook-role.yaml` CloudFormation template.
+* An AWS Account with an IAM Execution Role for the SageMaker Notebook Instance which can be created using `cloudformation/sagemaker-notebook-role.yaml` CloudFormation template.
 * An appropriate SageMaker Notebook Instance limit. A request for a service limit increase can raised by following [this process](https://docs.aws.amazon.com/deepcomposer/latest/devguide/deepcomposer-service-limit.html).
 
 ## Getting Started
