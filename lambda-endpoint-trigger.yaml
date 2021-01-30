@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates an IAM Execution Role and AWS Lambda function that can trigger the SageMaker Endpoint.
+
+Resources:
+    IAMRole:
+      Type: AWS::IAM::Role
+      Properties: 
+        AssumeRolePolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                - lambda.amazonaws.com
+              Action:
+                - 'sts:AssumeRole'
+        ManagedPolicyArns: 
+          - 'arn:aws:iam::aws:policy/AmazonSageMakerFullAccess'
+        RoleName: 'Lambda-BERT-Endpoint-Role'
+
+    Function:
+      Type: AWS::Lambda::Function
+      Properties: 
+        Code: 
+          ZipFile: |
+            import boto3
+            import json
+            
+            sagemaker_runtime = boto3.client('sagemaker-runtime')
+            sagemaker_endpoint = 'bert-model-endpoint'
+            
+            def lambda_handler(event, context):
+              new_event = event
+              response = sagemaker_runtime.invoke_endpoint(
+                EndpointName=sagemaker_endpoint,
+                Body=json.dumps(new_event),
+                ContentType='application/json'
+              )
+              
+              response_body = response['Body'].read().decode("utf-8")
+              cleaned_response = response_body.replace('"', '')
+              
+              return {
+                'statusCode': 200,
+                'body': cleaned_response
+              }
+
+        FunctionName: 'bert-model-endpoint-trigger'
+        Handler: 'index.lambda_handler'
+        MemorySize: 128
+        Role: !Sub 'arn:aws:iam::${AWS::AccountId}:role/Lambda-BERT-Endpoint-Role'
+        Runtime: 'python3.7'
+        Timeout: 5
