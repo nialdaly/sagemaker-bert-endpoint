@@ -25,6 +25,11 @@ aws cloudformation delete-stack --stack-name sagemaker-bert-endpoint-stack
 
 The SageMaker Notebook instance must be terminated yourself. **Remember to stop the instance if you aren't using it as you will be charged otherwise.**
 
+The CloudFormation stack used to create the *SageMaker-Notebook-Role* can be deleted with the following command:
+```
+aws cloudformation delete-stack --stack-name sagemaker-notebook-role-stack
+```
+
 ## Additional Resources
 - [SageMaker Pre-built Containers](https://docs.aws.amazon.com/sagemaker/latest/dg/pre-built-containers-frameworks-deep-learning.html)
 - [BERT Deployment on SageMaker](https://aws.amazon.com/blogs/machine-learning/fine-tuning-a-pytorch-bert-model-and-deploying-it-with-amazon-elastic-inference-on-amazon-sagemaker/)
