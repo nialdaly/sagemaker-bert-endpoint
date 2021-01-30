@@ -1,39 +1,59 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Creates an Amazon SageMaker Model, Endpoint Configuration and Endpoint.
+Description: Creates an IAM Execution Role, Amazon SageMaker Model, Endpoint Configuration and Endpoint.
 
 Parameters:
   BucketName:
     Type: String
-    Default: sagemaker-bert-endpoint-artefacts
-    
+    Default: sagemaker-endpoint-artefacts
+
 Resources:
-    Model:
-        Type: AWS::SageMaker::Model
-        Properties:
-            ExecutionRoleArn: !Sub 'arn:aws:iam::${AWS::AccountId}:role/SageMaker-BERT-Endpoint-Role'
-            ModelName: 'bert-squad-model'
-            PrimaryContainer:
-                Image: '763104351884.dkr.ecr.eu-west-1.amazonaws.com/pytorch-inference:1.4.0-cpu-py36-ubuntu16.04'
-                ModelDataUrl: !Sub 's3://${BucketName}/bert-squad-model/model.tar.gz'
-                Environment:
-                    SAGEMAKER_PROGRAM: 'predictor.py'
+  IAMRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - sagemaker.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns: 
+        - 'arn:aws:iam::aws:policy/AmazonSageMakerFullAccess'
+      RoleName: 'SageMaker-BERT-Endpoint-Role'
+      Tags: 
+        - Key: 'SageMaker-BERT-Endpoint-Role'
+          Value: 'SageMaker-BERT-Endpoint-Role'
 
-    Endpoint:
-        Type: AWS::SageMaker::Endpoint
-        Properties: 
-            EndpointConfigName: !GetAtt EndpointConfig.EndpointConfigName
-            EndpointName: 'bert-squad-model-endpoint'
+  Model:
+    Type: AWS::SageMaker::Model
+    Properties:
+      ExecutionRoleArn: !Sub 'arn:aws:iam::${AWS::AccountId}:role/SageMaker-BERT-Endpoint-Role'
+      ModelName: 'bert-model'
+      PrimaryContainer:
+        Image: '763104351884.dkr.ecr.eu-west-1.amazonaws.com/pytorch-inference:1.4.0-cpu-py36-ubuntu16.04'
+        ModelDataUrl: !Sub 's3://${BucketName}/bert-model/model.tar.gz'
+        Environment:
+          SAGEMAKER_PROGRAM: 'predictor.py'
+    DependsOn: IAMRole
 
-    EndpointConfig:
-        Type: AWS::SageMaker::EndpointConfig
-        Properties:
-            ProductionVariants: 
-                -
-                    ModelName: !GetAtt Model.ModelName
-                    VariantName: !GetAtt Model.ModelName
-                    InitialInstanceCount: 1
-                    InstanceType: 'ml.t2.2xlarge'
-                    InitialVariantWeight: 1.0
+  Endpoint:
+    Type: AWS::SageMaker::Endpoint
+    Properties: 
+      EndpointConfigName: !GetAtt EndpointConfig.EndpointConfigName
+      EndpointName: 'bert-model-endpoint'
+
+  EndpointConfig:
+    Type: AWS::SageMaker::EndpointConfig
+    Properties:
+      ProductionVariants: 
+        -
+          ModelName: !GetAtt Model.ModelName
+          VariantName: !GetAtt Model.ModelName
+          InitialInstanceCount: 1
+          InstanceType: 'ml.t2.2xlarge'
+          InitialVariantWeight: 1.0
 
 Outputs:
     EndpointId:
