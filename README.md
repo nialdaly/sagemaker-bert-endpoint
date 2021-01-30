@@ -6,14 +6,12 @@ The following project will demonstrate the process of deploying a BERT model fin
 * An appropriate SageMaker Notebook Instance limit. A request for a service limit increase can raised by following [this process](https://docs.aws.amazon.com/deepcomposer/latest/devguide/deepcomposer-service-limit.html).
 
 ## Getting Started
-The easiest way to get started is to spin up an Amazon SageMaker notebook instance using the SageMaker Execution Role that you previously created. You can select a smaller instance such as the `ml.t2.medium` for this step. The process of creating a SageMaker Notebook instance is described [here](https://docs.aws.amazon.com/sagemaker/latest/dg/gs-setup-working-env.html).
+The easiest way to get started is to spin up an Amazon SageMaker notebook instance using the *SageMaker Notebook Role* that you previously created. You can select a smaller instance such as the `ml.t2.medium` for this step. The process of creating a SageMaker Notebook instance is described [here](https://docs.aws.amazon.com/sagemaker/latest/dg/gs-setup-working-env.html).
 
 The repository can be cloned via the following command.
 ```
 git clone https://github.com/nialdaly/sagemaker-bert-endpoint.git
 ```
-
-lambda-bert-endpoint-stack
 
 ## Resource Cleanup
 Any resources created in this project can be simply removed by destroying the CloudFormation stacks that you created using the CloudFormation console. It can also be deleted via the aws cli using the following command.
