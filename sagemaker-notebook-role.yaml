@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Creates an IAM Execution Role for the SageMaker service.
+Description: Creates an IAM Execution Role for the SageMaker Notebook Instance.
 
 Resources:
   IAMRole:
@@ -16,7 +16,7 @@ Resources:
               - 'sts:AssumeRole'
       ManagedPolicyArns: 
         - 'arn:aws:iam::aws:policy/AmazonSageMakerFullAccess'
-      RoleName: 'SageMaker-BERT-Endpoint-Role'
+      RoleName: 'SageMaker-Notebook-Role'
       Tags: 
-        - Key: 'SageMaker-Execution-Role'
-          Value: 'SageMaker-BERT-Endpoint-Execution-Role'
+        - Key: 'SageMaker-Notebook-Role'
+          Value: 'SageMaker-Notebook-Role'
