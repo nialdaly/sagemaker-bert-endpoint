@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates an Amazon Cognito User and Identity Pool.
+
+Parameters:
+  CognitoUserPoolName:
+    Type: String
+    Default: 'qa-app-user-pool'
+  CognitoUserPoolClientName:
+    Type: String
+    Default: 'qa-app-user-pool-client'
+  CognitoUIdentityPoolName:
+    Type: String
+    Default: 'qa-app-identity-pool-client'
+
+Resources:
+  CognitoUserPool:
+    Type: "AWS::Cognito::UserPool"
+    Properties:
+      UserPoolName: !Ref CognitoUserPoolName
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Schema:
+        - Name: name
+          AttributeDataType: String
+          Mutable: true
+          Required: false
+        - Name: email
+          AttributeDataType: String
+          Mutable: false
+          Required: true
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties: 
+      ClientName: !Ref CognitoUserPoolClientName
+      GenerateSecret: false
+      UserPoolId: !Ref CognitoUserPool
+
+  CognitoIdentityPool:
+    Type: "AWS::Cognito::IdentityPool"
+    Properties:
+      IdentityPoolName: !Ref CognitoUIdentityPoolName
+      AllowUnauthenticatedIdentities: false
+      CognitoIdentityProviders: 
+        - ClientId: !Ref CognitoUserPoolClient
+          ProviderName: !GetAtt CognitoUserPool.ProviderName
+
+Outputs:
+  CognitoUserPoolId:
+    Value: !Ref CognitoUserPool
+    Export:
+      Name: "UserPool::Id"
+  CognitoUserPoolClientId:
+    Value: !Ref CognitoUserPoolClient
+    Export:
+      Name: "UserPoolClient::Id"
+  CognitoIdentityPoolId:
+    Value: !Ref CognitoIdentityPool
+    Export:
+      Name: "IdentityPool::Id"
