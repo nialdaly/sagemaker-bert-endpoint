@@ -57,3 +57,4 @@ aws cloudformation delete-stack --stack-name sagemaker-notebook-role-stack
 - [SageMaker Pre-built Containers](https://docs.aws.amazon.com/sagemaker/latest/dg/pre-built-containers-frameworks-deep-learning.html)
 - [BERT Deployment on SageMaker](https://aws.amazon.com/blogs/machine-learning/fine-tuning-a-pytorch-bert-model-and-deploying-it-with-amazon-elastic-inference-on-amazon-sagemaker/)
 - [Lambda Inline Code - CloudFormation](https://github.com/awslabs/aws-cloudformation-templates/blob/master/aws/services/CloudFormation/MacrosExamples/PyPlate/python.yaml)
+-[Lambda & API Gateway Integration](https://realpython.com/code-evaluation-with-aws-lambda-and-api-gateway/)
