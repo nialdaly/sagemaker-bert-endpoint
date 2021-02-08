@@ -15,101 +15,121 @@ Parameters:
   APIGatewayHTTPMethod:
     Type: String
     Default: POST
+  CognitoStackName:
+    Type: String
+    Default: cognito-bert-resources-stack
 
 Resources:
-    LambdaIAMRole:
-      Type: AWS::IAM::Role
-      Properties: 
-        AssumeRolePolicyDocument:
-          Version: 2012-10-17
-          Statement:
-            - Effect: Allow
-              Principal:
-                Service:
-                - lambda.amazonaws.com
-              Action:
-                - 'sts:AssumeRole'
-        ManagedPolicyArns: 
-          - 'arn:aws:iam::aws:policy/AmazonSageMakerFullAccess'
-        RoleName: 'Lambda-BERT-Endpoint-Role'
+  LambdaIAMRole:
+    Type: AWS::IAM::Role
+    Properties: 
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns: 
+        - 'arn:aws:iam::aws:policy/AmazonSageMakerFullAccess'
+      RoleName: 'Lambda-BERT-Endpoint-Role'
 
-    LambdaFunction:
-      Type: AWS::Lambda::Function
-      Properties: 
-        Code: 
-          ZipFile: |
-            import boto3
-            import json
-            
-            sagemaker_runtime = boto3.client('sagemaker-runtime')
-            sagemaker_endpoint = 'bert-model-endpoint'
-            
-            def lambda_handler(event, context):
-              new_event = event
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties: 
+      Code: 
+        ZipFile: |
+          import boto3
+          from botocore.exceptions import ClientError
+          import json
+
+          sagemaker_runtime = boto3.client('sagemaker-runtime')
+          sagemaker_endpoint = 'bert-model-endpoint'
+
+          def exception_handler(e):
+            status_code = 503
+            return {
+              'statusCode': status_code,
+              'body': str(e)
+            }
+    
+          def lambda_handler(event, context):
+            new_event = event
+  
+            try:
               response = sagemaker_runtime.invoke_endpoint(
                 EndpointName=sagemaker_endpoint,
                 Body=json.dumps(new_event),
                 ContentType='application/json'
               )
-              
+    
               response_body = response['Body'].read().decode("utf-8")
               cleaned_response = response_body.replace('"', '')
-              
+    
               return {
                 'statusCode': 200,
                 'body': cleaned_response
               }
-
-        FunctionName: !Ref LambdaFunctionName
-        Handler: 'index.lambda_handler'
-        MemorySize: 128
-        Role: !Sub 'arn:aws:iam::${AWS::AccountId}:role/Lambda-BERT-Endpoint-Role'
-        Runtime: 'python3.7'
-        Timeout: 5
-      DependsOn: LambdaIAMRole
-
-    APIGateway:
-      Type: AWS::ApiGateway::RestApi
-      Properties:
-        EndpointConfiguration:
-          Types:
-            - REGIONAL
-        Name: !Ref APIGatewayName
-        
-    APIGatewayMethod:
-      Type: AWS::ApiGateway::Method
-      Properties:
-        AuthorizationType: NONE
-        HttpMethod: 'POST'
-        Integration:
-          IntegrationHttpMethod: 'POST'
-          Type: 'AWS'
-          Uri: !Sub
-            - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations
-            - LambdaFunctionArn: !GetAtt LambdaFunction.Arn
-          IntegrationResponses:
-            - StatusCode: 200
-        RestApiId: !Ref APIGateway
-        MethodResponses:
-          - StatusCode: 200
-            ResponseModels: 
-              'application/json': 'Empty'
-        ResourceId: !GetAtt 
-          - APIGateway
-          - RootResourceId
-      DependsOn: LambdaFunction
-
-    APIGatewayDeployment:
-      Type: AWS::ApiGateway::Deployment
-      DependsOn: APIGatewayMethod
-      Properties:
-        RestApiId: !Ref APIGateway
-        StageName: !Ref APIGatewayStageName
     
-    LambdaFunctionAPIGatewayInvoke:
-      Type: AWS::Lambda::Permission
-      Properties:
-        Action: lambda:InvokeFunction
-        FunctionName: !GetAtt LambdaFunction.Arn
-        Principal: apigateway.amazonaws.com
-        SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${APIGateway}/*/
+            except ClientError as e:
+              if e.response['Error']['Code'] == 'ValidationError':
+                return exception_handler("SageMaker model (BERT) endpoint unavailable")
+              else:
+                return exception_handler("SageMaker model (BERT) endpoint unavailable")
+
+      FunctionName: !Ref LambdaFunctionName
+      Handler: 'index.lambda_handler'
+      MemorySize: 128
+      Role: !Sub 'arn:aws:iam::${AWS::AccountId}:role/Lambda-BERT-Endpoint-Role'
+      Runtime: 'python3.7'
+      Timeout: 5
+    DependsOn: LambdaIAMRole
+
+  APIGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      Name: !Ref APIGatewayName
+
+
+  APIGatewayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: None
+      HttpMethod: 'POST'
+      Integration:
+        IntegrationHttpMethod: 'POST'
+        Type: 'AWS'
+        Uri: !Sub
+          - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations
+          - LambdaFunctionArn: !GetAtt LambdaFunction.Arn
+        IntegrationResponses:
+          - StatusCode: 200
+      RestApiId: !Ref APIGateway
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels: 
+            'application/json': 'Empty'
+      ResourceId: !GetAtt 
+        - APIGateway
+        - RootResourceId
+    DependsOn: LambdaFunction
+
+  APIGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: APIGatewayMethod
+    Properties:
+      RestApiId: !Ref APIGateway
+      StageName: !Ref APIGatewayStageName
+  
+  LambdaFunctionAPIGatewayInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt LambdaFunction.Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${APIGateway}/*/*/
