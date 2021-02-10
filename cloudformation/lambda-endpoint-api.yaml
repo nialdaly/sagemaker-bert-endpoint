@@ -17,7 +17,7 @@ Parameters:
     Default: POST
   CognitoStackName:
     Type: String
-    Default: cognito-bert-resources-stack
+    Default: 'cognito-bert-resources-stack'
 
 Resources:
   LambdaIAMRole:
@@ -95,11 +95,24 @@ Resources:
           - REGIONAL
       Name: !Ref APIGatewayName
 
+  APIGatewayAuthorizer:
+    Type: AWS::ApiGateway::Authorizer
+    Properties: 
+      AuthorizerResultTtlInSeconds: 300
+      IdentitySource: method.request.header.Authorization
+      IdentityValidationExpression: String
+      Name: !Sub ${APIGatewayName}-authorizer
+      ProviderARNs: 
+        - Fn::ImportValue: 
+            Fn::Sub: '${CognitoStackName}-CognitoUserPoolArn'
+      RestApiId: !Ref APIGateway
+      Type: 'COGNITO_USER_POOLS'
 
   APIGatewayMethod:
     Type: AWS::ApiGateway::Method
     Properties:
-      AuthorizationType: None
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId: !Ref APIGatewayAuthorizer
       HttpMethod: 'POST'
       Integration:
         IntegrationHttpMethod: 'POST'
