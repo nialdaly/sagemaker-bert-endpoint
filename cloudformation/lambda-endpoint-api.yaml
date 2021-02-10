@@ -4,10 +4,10 @@ Description: Creates an IAM Execution Role, AWS Lambda function and an API that 
 Parameters:
   LambdaFunctionName:
     Type: String
-    Default: 'bert-model-endpoint-trigger'
+    Default: bert-model-endpoint-trigger
   APIGatewayName:
     Type: String
-    Default: 'getanswerapi'
+    Default: getanswerapi
   APIGatewayStageName:
     Type: String
     AllowedPattern: "[a-z0-9]+"
@@ -17,7 +17,7 @@ Parameters:
     Default: POST
   CognitoStackName:
     Type: String
-    Default: 'cognito-bert-resources-stack'
+    Default: cognito-bert-resources-stack
 
 Resources:
   LambdaIAMRole:
@@ -31,10 +31,10 @@ Resources:
               Service:
               - lambda.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - sts:AssumeRole
       ManagedPolicyArns: 
-        - 'arn:aws:iam::aws:policy/AmazonSageMakerFullAccess'
-      RoleName: 'Lambda-BERT-Endpoint-Role'
+        - arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
+      RoleName: Lambda-BERT-Endpoint-Role
 
   LambdaFunction:
     Type: AWS::Lambda::Function
@@ -80,10 +80,10 @@ Resources:
                 return exception_handler("SageMaker model (BERT) endpoint unavailable")
 
       FunctionName: !Ref LambdaFunctionName
-      Handler: 'index.lambda_handler'
+      Handler: index.lambda_handler
       MemorySize: 128
-      Role: !Sub 'arn:aws:iam::${AWS::AccountId}:role/Lambda-BERT-Endpoint-Role'
-      Runtime: 'python3.7'
+      Role: !Sub arn:aws:iam::${AWS::AccountId}:role/Lambda-BERT-Endpoint-Role
+      Runtime: python3.7
       Timeout: 5
     DependsOn: LambdaIAMRole
 
@@ -104,19 +104,19 @@ Resources:
       Name: !Sub ${APIGatewayName}-authorizer
       ProviderARNs: 
         - Fn::ImportValue: 
-            Fn::Sub: '${CognitoStackName}-CognitoUserPoolArn'
+            Fn::Sub: ${CognitoStackName}-CognitoUserPoolArn
       RestApiId: !Ref APIGateway
-      Type: 'COGNITO_USER_POOLS'
+      Type: COGNITO_USER_POOLS
 
   APIGatewayMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: COGNITO_USER_POOLS
       AuthorizerId: !Ref APIGatewayAuthorizer
-      HttpMethod: 'POST'
+      HttpMethod: POST
       Integration:
-        IntegrationHttpMethod: 'POST'
-        Type: 'AWS'
+        IntegrationHttpMethod: POST
+        Type: AWS
         Uri: !Sub
           - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LambdaFunction.Arn}/invocations
           - LambdaFunctionArn: !GetAtt LambdaFunction.Arn

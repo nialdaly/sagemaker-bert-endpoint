@@ -18,31 +18,31 @@ Resources:
               Service:
               - sagemaker.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - sts:AssumeRole
       ManagedPolicyArns: 
-        - 'arn:aws:iam::aws:policy/AmazonSageMakerFullAccess'
-      RoleName: 'SageMaker-BERT-Endpoint-Role'
+        - arn:aws:iam::aws:policy/AmazonSageMakerFullAccess
+      RoleName: SageMaker-BERT-Endpoint-Role
       Tags: 
-        - Key: 'SageMaker-BERT-Endpoint-Role'
-          Value: 'SageMaker-BERT-Endpoint-Role'
+        - Key: SageMaker-BERT-Endpoint-Role
+          Value: SageMaker-BERT-Endpoint-Role
 
   Model:
     Type: AWS::SageMaker::Model
     Properties:
-      ExecutionRoleArn: !Sub 'arn:aws:iam::${AWS::AccountId}:role/SageMaker-BERT-Endpoint-Role'
-      ModelName: 'bert-model'
+      ExecutionRoleArn: !Sub arn:aws:iam::${AWS::AccountId}:role/SageMaker-BERT-Endpoint-Role
+      ModelName: bert-model
       PrimaryContainer:
-        Image: '763104351884.dkr.ecr.eu-west-1.amazonaws.com/pytorch-inference:1.4.0-cpu-py36-ubuntu16.04'
-        ModelDataUrl: !Sub 's3://${BucketName}/bert-model/model.tar.gz'
+        Image: 763104351884.dkr.ecr.eu-west-1.amazonaws.com/pytorch-inference:1.4.0-cpu-py36-ubuntu16.04
+        ModelDataUrl: !Sub s3://${BucketName}/bert-model/model.tar.gz
         Environment:
-          SAGEMAKER_PROGRAM: 'predictor.py'
+          SAGEMAKER_PROGRAM: predictor.py
     DependsOn: IAMRole
 
   Endpoint:
     Type: AWS::SageMaker::Endpoint
     Properties: 
       EndpointConfigName: !GetAtt EndpointConfig.EndpointConfigName
-      EndpointName: 'bert-model-endpoint'
+      EndpointName: bert-model-endpoint
 
   EndpointConfig:
     Type: AWS::SageMaker::EndpointConfig
@@ -52,7 +52,7 @@ Resources:
           ModelName: !GetAtt Model.ModelName
           VariantName: !GetAtt Model.ModelName
           InitialInstanceCount: 1
-          InstanceType: 'ml.t2.2xlarge'
+          InstanceType: ml.t2.2xlarge
           InitialVariantWeight: 1.0
 
 Outputs:

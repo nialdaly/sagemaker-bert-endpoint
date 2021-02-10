@@ -4,17 +4,17 @@ Description: Creates an Amazon Cognito User and Identity Pool.
 Parameters:
   CognitoUserPoolName:
     Type: String
-    Default: 'qa-app-user-pool'
+    Default: qa-app-user-pool
   CognitoUserPoolClientName:
     Type: String
-    Default: 'qa-app-user-pool-client'
+    Default: qa-app-user-pool-client
   CognitoUIdentityPoolName:
     Type: String
-    Default: 'qa-app-identity-pool-client'
+    Default: qa-app-identity-pool-client
 
 Resources:
   CognitoUserPool:
-    Type: "AWS::Cognito::UserPool"
+    Type: AWS::Cognito::UserPool
     Properties:
       UserPoolName: !Ref CognitoUserPoolName
       AutoVerifiedAttributes:
@@ -39,7 +39,7 @@ Resources:
       UserPoolId: !Ref CognitoUserPool
 
   CognitoIdentityPool:
-    Type: "AWS::Cognito::IdentityPool"
+    Type: AWS::Cognito::IdentityPool
     Properties:
       IdentityPoolName: !Ref CognitoUIdentityPoolName
       AllowUnauthenticatedIdentities: false
@@ -48,15 +48,20 @@ Resources:
           ProviderName: !GetAtt CognitoUserPool.ProviderName
 
 Outputs:
-  CognitoUserPoolId:
+  CognitoUserPoolArn:
+    Value: !GetAtt CognitoUserPool.Arn
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-CognitoUserPoolArn
+  CognitoUserPoolID:
     Value: !Ref CognitoUserPool
     Export:
-      Name: "UserPool::Id"
-  CognitoUserPoolClientId:
+      Name: UserPool::Id
+  CognitoUserPoolClientID:
     Value: !Ref CognitoUserPoolClient
     Export:
-      Name: "UserPoolClient::Id"
-  CognitoIdentityPoolId:
+      Name: UserPoolClient::Id
+  CognitoIdentityPoolID:
     Value: !Ref CognitoIdentityPool
     Export:
-      Name: "IdentityPool::Id"
+      Name: IdentityPool::Id
