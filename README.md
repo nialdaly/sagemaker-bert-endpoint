@@ -1,5 +1,5 @@
 ## SageMaker BERT Endpoint
-The following project will demonstrate the process of deploying a BERT model fine-tuned on the SQuAD dataset provided by HuggingFace. The model will be deployed to an Amazon SageMak (PyTorch) Endpoint. The SageMaker endpoint will be invoked by a serverless function which is in turn secured by an API that integrates with an identity provider (IdP). This project has been developed with Amazon SageMaker, Amazon S3, AWS CloudFormation, AWS Lambda, Amazon Elastic Container Service (ECS), BERT and the HuggingFace Transformers library.
+The following project will demonstrate the process of deploying a BERT model fine-tuned on the SQuAD dataset provided by HuggingFace. The model will be deployed to an Amazon SageMaker (PyTorch) Endpoint. The SageMaker endpoint will be invoked by a serverless function which is in turn secured by an API that integrates with an identity provider (IdP). This project has been developed with Amazon SageMaker, Amazon S3, AWS CloudFormation, AWS Lambda, Amazon Elastic Container Service (ECS), BERT and the HuggingFace Transformers library.
 
 ### Prerequisites
 * An AWS Account with an IAM Execution Role for the SageMaker Notebook Instance which can be created using `cloudformation/sagemaker-notebook-role.yaml` CloudFormation template.
